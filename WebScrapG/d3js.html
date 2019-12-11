@@ -83,7 +83,7 @@ var svg = d3.select("body")
 d3.csv("https://raw.githubusercontent.com/RolfLobo/Data/master/WebScrapG/scrappingResults.csv", function(data) {
 
     // List of groups (here I have one group per column)
-    var allGroup = ["valueA", "valueB", "valueC"]
+    var allGroup = ["positive", "negative", "compound"]
 
     // Reformat the data: we need an array of arrays of {x, y} tuples
     var dataReady = allGroup.map( function(grpName) { // .map allows to do something for each element of the list
