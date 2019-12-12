@@ -90,7 +90,7 @@ d3.csv("https://raw.githubusercontent.com/RolfLobo/Data/master/WebScrapG/scrappi
       return {
         name: grpName,
         values: data.map(function(d) {
-          return {time: d.time, value: +d[grpName]};
+          return {time: d.index, value: +d[grpName]};
         })
       };
     });
@@ -104,7 +104,7 @@ d3.csv("https://raw.githubusercontent.com/RolfLobo/Data/master/WebScrapG/scrappi
 
       // Add X axis --> it is a date format
        var x = d3.scaleLinear()
-         .domain([0,10])
+         .domain([0,100])
          .range([ 0, width ]);
        svg.append("g")
          .attr("transform", "translate(0," + height + ")")
@@ -112,7 +112,7 @@ d3.csv("https://raw.githubusercontent.com/RolfLobo/Data/master/WebScrapG/scrappi
 
        // Add Y axis
        var y = d3.scaleLinear()
-         .domain( [0,20])
+         .domain( [-1,1])
          .range([ height, 0 ]);
        svg.append("g")
          .call(d3.axisLeft(y));
@@ -136,7 +136,7 @@ svg.call(tip);
 
     // Add the lines
     var line = d3.line()
-      .x(function(d) { return x(+d.time) })
+      .x(function(d) { return x(+d.index) })
       .y(function(d) { return y(+d.value) })
     svg.selectAll("myLines")
       .data(dataReady)
@@ -171,11 +171,11 @@ svg.call(tip);
         .attr("cy", function(d) { return y(d.value) } )
         .attr("r", 6)
         .style("stroke",function(d){
-          if (d.value <= 6 ) {return "red"}
+          if (d.value <= -0.05 ) {return "red"}
           else {return "none"}
         })
         .style("stroke-width",function(d){
-          if (d.value <= 6 ) {return 3}
+          if (d.value <= -0.05 ) {return 3}
           else {return 1}
         })
         .on("mouseover", tip.show)
