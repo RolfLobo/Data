@@ -1,95 +1,223 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style> /* set the CSS */
+<style>
+  /* set the CSS */
 
-.line {
-  fill: none;
-  stroke:rgb(218,165,32) ;
-  stroke-width: 2px;
-}
+  .line {
+    fill: none;
+    stroke: rgb(0, 174, 245);
+    /* box-shadow: 100px 100px grey; */
+    stroke-width: 1px;
+  }
 
+  .d3-tip {
+    line-height: 1;
+    font-weight: bold;
+    padding: 12px;
+    font-family: "helvetica";
+    background: rgba(255, 255, 255, 0.8);
+    color: black;
+    border-radius: 2px;
+    text
+  }
+
+  /* Creates a small triangle extender for the tooltip */
+  .d3-tip:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 0.9;
+    color: rgba(255, 255, 255, 0.8);
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+  }
+
+  /* Style northward tooltips differently */
+  .d3-tip.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+  }
+
+  /*
+  body
+{
+  background: rgba(41, 60, 71, 0.8);
+	font: 11px sans-serif;
+} */
+
+
+  /* .d3-tip span {
+    color: #ff00c7;
+  } */
 </style>
+
 <body>
 
-<!-- load the d3.js library -->
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script>
+  <!-- load the d3.js library -->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="d3-tip.js"></script>
+  <script>
+    // set the dimensions and margins of the graph
+    var margin = {
+        top: 150,
+        right: 20,
+        bottom: 20,
+        left: 50
+      },
+      width = 1080 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
 
-// set the dimensions and margins of the graph
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    // parse the date / time
+    var parseTime = d3.timeParse("%d-%b-%y");
 
-// parse the date / time
-var parseTime = d3.timeParse("%d-%b-%y");
+    // set the ranges
+    var x = d3.scaleTime().range([0, width]);
+    var y = d3.scaleLinear().range([height, 0]);
 
-// set the ranges
-var x = d3.scaleTime().range([0, width]);
-var y = d3.scaleLinear().range([height, 0]);
-
-// define the line
-var valueline = d3.line()
-    .x(function(d) { return x(d.index); })
-    .y(function(d) { return y(d.compound); });
-
-// append the svg obgect to the body of the page
-// appends a 'group' element to 'svg'
-// moves the 'group' element to the top left margin
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
-
-// Get the data
-d3.csv("https://raw.githubusercontent.com/RolfLobo/Data/master/WebScrapG/scrappingResults.csv", function(error, data) {
-  if (error) throw error;
-
-  // format the data
-  data.forEach(function(d) {
-      d.index = +d.index;
-      d.compound = +d.compound;
-  });
-
-  // Scale the range of the data
-  x.domain([d3.min(data, function(d) { return d.index; }), d3.max(data, function(d) { return d.index; })]);
-  y.domain([d3.min(data, function(d) { return d.compound; }), d3.max(data, function(d) { return d.compound; })]);
-
-  // Add the valueline path.
-  svg.append("path")
-      .data([data])
-      .attr("class", "line")
-      .attr("d", valueline);
-
-  // Add the scatterplot
-  svg.selectAll("dot")
-      .data(data)
-    .enter().append("circle")
-      .attr("class","dot")
-      .attr("r", 5)
-      .attr("cx", function(d) { return x(d.index); })
-      .attr("cy", function(d) { return y(d.compound); })
-      .style("stroke",function(d){
-        if (d.compound <= -0.05 ) {return "red"}
-        if (d.compound >= 0.05 ) {return "green"}
-        else {return "grey"}
+    // define the line
+    var valueline = d3.line()
+      .x(function(d) {
+        return x(d.index);
       })
-      .style("stroke-width",function(d){
-        if (d.compound <= -0.05 || d.compound >= 0.05) {return 3}
-        else {return 1}
+      .y(function(d) {
+        return y(d.compound);
       });
 
-  // Add the X Axis
-  svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+    // append the svg obgect to the body of the page
+    // appends a 'group' element to 'svg'
+    // moves the 'group' element to the top left margin
+    var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
 
-  // Add the Y Axis
-  svg.append("g")
-      .call(d3.axisLeft(y));
+    var rectSize = Math.min(90, 89 * width / 1280);
+    svg.append("rect")
+      .attr("class", "exampleGlow")
+      .attr("transform", "translate(" + -width / 4 + "," + 0 + ")")
+      .attr("x", -rectSize / 2)
+      .attr("y", -rectSize)
+      .attr("width", rectSize)
+      .attr("height", rectSize * 2)
+      .style("fill", "#EDC951");
 
-});
+    var glowOn = true;
+    //Switch between glow filter and no filter on click
+    function switchGlow() {
+      d3.selectAll(".exampleGlow")
+        .style("filter", glowOn ? "none" : "url(#glow)");
+      glowOn = glowOn ? false : true;
+    }
 
-</script>
+    //Container for the gradients
+    var defs = svg.append("defs");
+
+    //Filter for the outside glow
+    var filter = defs.append("filter")
+      .attr("id", "glow");
+    filter.append("feGaussianBlur")
+      .attr("stdDeviation", "100")
+      .attr("result", "coloredBlur");
+    var feMerge = filter.append("feMerge");
+    feMerge.append("feMergeNode")
+      .attr("in", "coloredBlur");
+    feMerge.append("feMergeNode")
+      .attr("in", "SourceGraphic");
+
+
+    var tool_tip = d3.tip()
+      .attr("class", "d3-tip")
+      .offset([-10, 0])
+      .html("<p id='well1'>This is a SVG inside a tooltip:</p><div id='tipDiv'></div>");
+
+    svg.call(tool_tip);
+
+    // Get the data
+    d3.csv("https://raw.githubusercontent.com/RolfLobo/Data/master/WebScrapG/scrappingResults.csv", function(error, data) {
+      if (error) throw error;
+
+      // format the data
+      data.forEach(function(d) {
+        d.index = +d.index;
+        d.compound = +d.compound;
+      });
+
+      // Scale the range of the data
+      x.domain([d3.min(data, function(d) {
+        return d.index;
+      }), d3.max(data, function(d) {
+        return d.index;
+      })]);
+      y.domain([d3.min(data, function(d) {
+        return d.compound;
+      }), d3.max(data, function(d) {
+        return d.compound;
+      })]);
+
+      // Add the valueline path.
+      svg.append("path")
+        .data([data])
+        .attr("class", "exampleGlow")
+        .attr("class", "line")
+        .attr("d", valueline);
+
+      // Add the scatterplot
+      svg.selectAll("dot")
+        .data(data)
+        .enter().append("circle")
+        .attr("class", "dot")
+        .attr("r", 5)
+        .attr("cx", function(d) {
+          return x(d.index);
+        })
+        .attr("cy", function(d) {
+          return y(d.compound);
+        })
+        .style("fill", "#00A0B0")
+        .style("stroke", "#00A0B0");
+      // .style("stroke", function(d) {
+      //   if (d.compound <= -0.05) {
+      //     return "red"
+      //   }
+      //   if (d.compound >= 0.05) {
+      //     return "green"
+      //   } else {
+      //     return "grey"
+      //   }
+      // })
+      // .style("stroke-width", function(d) {
+      //   if (d.compound <= -0.05 || d.compound >= 0.05) {
+      //     return 3
+      //   } else {
+      //     return 1
+      //   }
+      // })
+      // .on('click', tool_tip.show);
+      // .on('click', tool_tip.hide);
+
+
+
+      // Add the X Axis
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+      // Add the Y Axis
+      svg.append("g")
+        .call(d3.axisLeft(y));
+    });
+
+    d3.selectAll(".exampleGlow")
+      .style("filter", "url(#glow)");
+
+    // var tipSVG = d3.select("#tipDiv")
+    //   .append("svg")
+    //   .attr("width", 200)
+    //   .attr("height", 50);
+  </script>
 </body>
